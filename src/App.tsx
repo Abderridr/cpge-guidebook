@@ -13,6 +13,8 @@ import Bibliotheque from "./pages/Bibliotheque";
 import Concours from "./pages/Concours";
 import OffresKorrid from "./pages/OffresKorrid";
 import APropos from "./pages/APropos";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +37,8 @@ const App = () => (
                 <Route path="/concours" element={<Concours />} />
                 <Route path="/offres-korrid" element={<OffresKorrid />} />
                 <Route path="/a-propos" element={<APropos />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
