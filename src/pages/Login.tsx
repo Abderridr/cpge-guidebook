@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, GraduationCap } from 'lucide-react';
+import logoImage from '@/assets/logo.png';
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -46,9 +47,7 @@ const Login = () => {
         {/* Header */}
         <div className="text-center">
           <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
-            <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center">
-              <GraduationCap className="w-7 h-7 text-primary-foreground" />
-            </div>
+            <img src={logoImage} alt="CPGEISTES Logo" className="w-12 h-12 rounded-xl" />
             <span className="text-2xl font-bold bg-gradient-to-r from-primary to-red-600 bg-clip-text text-transparent">
               CPGEISTES
             </span>

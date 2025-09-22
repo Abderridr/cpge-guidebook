@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Moon, Sun, GraduationCap } from 'lucide-react';
+import logoImage from '@/assets/logo.png';
+import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { Menu, X, Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 
 const Header = () => {
@@ -27,9 +29,7 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-primary-foreground" />
-            </div>
+            <img src={logoImage} alt="CPGEISTES Logo" className="w-8 h-8 rounded-lg" />
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
               CPGEISTES
             </span>

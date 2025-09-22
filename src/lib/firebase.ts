@@ -4,13 +4,13 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  // Add your Firebase config here
-  apiKey: "your-api-key",
-  authDomain: "cpgeistes.firebaseapp.com",
-  projectId: "cpgeistes",
-  storageBucket: "cpgeistes.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "your-app-id"
+  apiKey: "AIzaSyBM6Xfv2gzg5G7bWGY-sH-k3yZag7ZSWTo",
+  authDomain: "cpgeist-ef1c8.firebaseapp.com",
+  projectId: "cpgeist-ef1c8",
+  storageBucket: "cpgeist-ef1c8.firebasestorage.app",
+  messagingSenderId: "951985443572",
+  appId: "1:951985443572:web:84fa62141b854ad78d84a1",
+  measurementId: "G-4Q9ZEXWGJP"
 };
 
 // Initialize Firebase

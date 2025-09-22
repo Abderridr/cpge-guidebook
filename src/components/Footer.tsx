@@ -1,4 +1,5 @@
 import React from 'react';
+import logoImage from '@/assets/logo.png';
 import { Link } from 'react-router-dom';
 import { GraduationCap, Mail, Phone, MapPin, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
 
@@ -26,9 +27,7 @@ const Footer = () => {
           {/* Brand & About */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <GraduationCap className="w-5 h-5 text-primary-foreground" />
-              </div>
+              <img src={logoImage} alt="CPGEISTES Logo" className="w-8 h-8 rounded-lg" />
               <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
                 CPGEISTES
               </span>
