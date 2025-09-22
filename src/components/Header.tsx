@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import logoImage from '@/assets/logo.png';
-import { Link } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/hooks/useAuth';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+  const { user, signOut, isAdmin } = useAuth();
 
   const navigation = [
     { name: 'Accueil', href: '/' },
@@ -18,7 +19,6 @@ const Header = () => {
     { name: 'Concours', href: '/concours' },
     { name: 'Offres Korrid', href: '/offres-korrid' },
     { name: 'À propos', href: '/a-propos' },
-    { name: 'Login', href: '/login' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -50,6 +50,36 @@ const Header = () => {
                 {item.name}
               </Link>
             ))}
+            
+            {/* Auth Section */}
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-muted-foreground">
+                  Bonjour, {user.email?.split('@')[0]}
+                </span>
+                {isAdmin && (
+                  <Link
+                    to="/dashboard"
+                    className="text-primary hover:text-primary/80 transition-colors duration-200"
+                  >
+                    Dashboard
+                  </Link>
+                )}
+                <button
+                  onClick={() => signOut()}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+                >
+                  Déconnexion
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="text-primary hover:text-primary/80 transition-colors duration-200"
+              >
+                Connexion
+              </Link>
+            )}
             
             {/* Theme Toggle */}
             <button
@@ -109,6 +139,41 @@ const Header = () => {
                 {item.name}
               </Link>
             ))}
+            
+            {/* Mobile Auth Section */}
+            {user ? (
+              <div className="px-3 py-2 border-t border-border mt-4 pt-4">
+                <div className="text-sm text-muted-foreground mb-2">
+                  Bonjour, {user.email?.split('@')[0]}
+                </div>
+                {isAdmin && (
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block py-2 text-primary hover:text-primary/80 transition-colors duration-200"
+                  >
+                    Dashboard
+                  </Link>
+                )}
+                <button
+                  onClick={() => {
+                    signOut();
+                    setIsMenuOpen(false);
+                  }}
+                  className="block py-2 text-muted-foreground hover:text-foreground transition-colors duration-200"
+                >
+                  Déconnexion
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setIsMenuOpen(false)}
+                className="block px-3 py-2 text-primary hover:text-primary/80 transition-colors duration-200 border-t border-border mt-4 pt-4"
+              >
+                Connexion
+              </Link>
+            )}
           </div>
         )}
       </div>

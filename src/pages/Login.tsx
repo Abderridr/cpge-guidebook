@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import logoImage from '@/assets/logo.png';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
@@ -11,19 +10,31 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { signIn, user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        throw error;
+      }
+
       toast({
         title: "Connexion réussie",
         description: "Bienvenue sur CPGEISTES !",
       });
-      // Redirect to dashboard would be handled by auth state change
     } catch (error: any) {
       toast({
         title: "Erreur de connexion",
@@ -36,7 +47,7 @@ const Login = () => {
   };
 
   const testAccounts = [
-    { email: 'etudiant@cpgeistes.ma', password: 'etudiant123', role: 'Étudiant' },
+    { email: 'student@cpgeistes.ma', password: 'student123', role: 'Étudiant' },
     { email: 'admin@cpgeistes.ma', password: 'admin123', role: 'Administrateur' },
   ];
 
