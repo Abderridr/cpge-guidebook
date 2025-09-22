@@ -30,7 +30,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <img src={logoImage} alt="CPGEISTES Logo" className="w-8 h-8 rounded-lg" />
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+            <span className="text-xl font-bold text-primary">
               CPGEISTES
             </span>
           </Link>
