@@ -14,7 +14,153 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      articles: {
+        Row: {
+          author: string
+          category: string
+          content: string | null
+          created_at: string | null
+          excerpt: string | null
+          id: string
+          image_url: string | null
+          published_at: string | null
+          title: string
+        }
+        Insert: {
+          author: string
+          category: string
+          content?: string | null
+          created_at?: string | null
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          published_at?: string | null
+          title: string
+        }
+        Update: {
+          author?: string
+          category?: string
+          content?: string | null
+          created_at?: string | null
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          published_at?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      concours: {
+        Row: {
+          created_at: string | null
+          ecoles: Json
+          ecrits_end: string
+          ecrits_start: string
+          filieres: Json
+          id: string
+          inscription_end: string
+          inscription_start: string
+          name: string
+          oraux_end: string
+          oraux_start: string
+          results_date: string
+          stats: Json
+          type: string
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          ecoles?: Json
+          ecrits_end: string
+          ecrits_start: string
+          filieres?: Json
+          id?: string
+          inscription_end: string
+          inscription_start: string
+          name: string
+          oraux_end: string
+          oraux_start: string
+          results_date: string
+          stats?: Json
+          type: string
+          year: number
+        }
+        Update: {
+          created_at?: string | null
+          ecoles?: Json
+          ecrits_end?: string
+          ecrits_start?: string
+          filieres?: Json
+          id?: string
+          inscription_end?: string
+          inscription_start?: string
+          name?: string
+          oraux_end?: string
+          oraux_start?: string
+          results_date?: string
+          stats?: Json
+          type?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      documents: {
+        Row: {
+          created_at: string | null
+          document_url: string
+          downloads: number | null
+          filiere: string
+          id: string
+          is_premium: boolean | null
+          subject: string
+          title: string
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          document_url: string
+          downloads?: number | null
+          filiere: string
+          id?: string
+          is_premium?: boolean | null
+          subject: string
+          title: string
+          year: number
+        }
+        Update: {
+          created_at?: string | null
+          document_url?: string
+          downloads?: number | null
+          filiere?: string
+          id?: string
+          is_premium?: boolean | null
+          subject?: string
+          title?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          role: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          role?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          role?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
