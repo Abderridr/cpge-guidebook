@@ -1,41 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Calendar, Users, School, TrendingUp, FileText, Video, Target } from 'lucide-react';
+import { Calendar, Users, School, TrendingUp, FileText, Video, Target, Plus } from 'lucide-react';
+
+interface ConcoursType {
+  id: number;
+  name: string;
+  type: string;
+  year: number;
+  inscription_start: string;
+  inscrition_end: string;
+  ecrits_start: string;
+  ecrits_end: string;
+  oraux_start: string;
+  oraux_end: string;
+  resilts_date: string;
+  filieres: string[];
+  stats: any;
+  ecoles: any[];
+  created_at: string;
+}
 
 const Concours = () => {
-  const [concoursList, setConcoursList] = useState<any[]>([]);
-  const [activeConcours, setActiveConcours] = useState<string>('');
+  const [concoursList, setConcoursList] = useState<ConcoursType[]>([]);
+  const [activeConcours, setActiveConcours] = useState<ConcoursType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
-  // Example methodologies (static)
-  const methodologies = [
-    {
-      title: 'TIPE - Travail d\'Initiative Personnelle Encadré',
-      description: 'Méthodes et conseils pour réussir votre TIPE, du choix du sujet à la présentation orale.',
-      icon: FileText,
-      color: 'text-primary',
-      items: [
-        'Choisir un sujet pertinent et original',
-        'Structurer votre démarche scientifique',
-        'Préparer une présentation efficace',
-        'Gérer les questions du jury',
-      ],
-    },
-    {
-      title: 'Épreuves Orales',
-      description: 'Techniques pour exceller lors des entretiens et épreuves orales des concours.',
-      icon: Video,
-      color: 'text-success',
-      items: [
-        'Techniques de communication orale',
-        'Gestion du stress et de l\'anxiété',
-        'Présentation personnelle impactante',
-        'Répondre aux questions pièges',
-      ],
-    },
-  ];
+  // New concours form state
+  const [newConcours, setNewConcours] = useState({
+    name: '',
+    type: '',
+    year: new Date().getFullYear(),
+    inscription_start: '',
+    inscrition_end: '',
+    ecrits_start: '',
+    ecrits_end: '',
+    oraux_start: '',
+    oraux_end: '',
+    resilts_date: '',
+    filieres: [] as string[],
+    stats: {},
+    ecoles: [],
+  });
 
-  // ✅ Fetch concours from Supabase
+  // Fetch concours from Supabase
   useEffect(() => {
     const fetchConcours = async () => {
       setLoading(true);
@@ -46,29 +54,68 @@ const Concours = () => {
 
       if (error) {
         console.error('Error fetching concours:', error);
-      } else if (data && data.length > 0) {
-        setConcoursList(data);
-        setActiveConcours(data[0].name); // default first concours
+      } else {
+        setConcoursList(data || []);
+        if (data && data.length > 0) setActiveConcours(data[0]);
       }
-
       setLoading(false);
     };
-
     fetchConcours();
   }, []);
 
-  const currentConcours = concoursList.find(c => c.name === activeConcours);
+  // Handle new concours form submit
+  const handleAddConcours = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { data, error } = await supabase
+      .from('concours')
+      .insert([newConcours])
+      .select();
+
+    if (error) {
+      alert('Erreur lors de l\'ajout du concours: ' + error.message);
+    } else {
+      alert('Concours ajouté avec succès!');
+      setConcoursList(prev => [...prev, data[0]]);
+      setActiveConcours(data[0]);
+      setShowForm(false);
+      setNewConcours({
+        name: '',
+        type: '',
+        year: new Date().getFullYear(),
+        inscription_start: '',
+        inscrition_end: '',
+        ecrits_start: '',
+        ecrits_end: '',
+        oraux_start: '',
+        oraux_end: '',
+        resilts_date: '',
+        filieres: [],
+        stats: {},
+        ecoles: [],
+      });
+    }
+  };
+
+  if (loading) return <p className="text-center py-12">Chargement des concours...</p>;
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <section className="bg-gradient-subtle py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="section-title">Concours CPGE</h1>
-            <p className="section-subtitle">
-              Toutes les informations essentielles sur les concours d'accès aux grandes écoles marocaines
-            </p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="section-title">Concours CPGE</h1>
+              <p className="section-subtitle">
+                Toutes les informations essentielles sur les concours d'accès aux grandes écoles marocaines
+              </p>
+            </div>
+            <button
+              className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:shadow-md"
+              onClick={() => setShowForm(true)}
+            >
+              <Plus className="w-5 h-5" /> Nouveau concours
+            </button>
           </div>
         </div>
       </section>
@@ -76,139 +123,99 @@ const Concours = () => {
       {/* Tabs */}
       <section className="py-8 bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
-          <div className="flex space-x-1 bg-muted p-1 rounded-lg overflow-x-auto">
+          <div className="flex space-x-1 bg-muted p-1 rounded-lg">
             {concoursList.map((concours) => (
               <button
-                key={concours.name}
-                onClick={() => setActiveConcours(concours.name)}
-                className={`px-6 py-3 rounded-md font-medium text-sm transition-all duration-200 whitespace-nowrap ${
-                  activeConcours === concours.name
+                key={concours.id}
+                onClick={() => setActiveConcours(concours)}
+                className={`px-6 py-3 rounded-md font-medium text-sm transition-all duration-200 ${
+                  activeConcours?.id === concours.id
                     ? 'bg-primary text-primary-foreground shadow-md'
                     : 'text-muted-foreground hover:text-foreground hover:bg-background'
                 }`}
               >
-                {concours.name}
+                {concours.name} {concours.year}
               </button>
             ))}
           </div>
         </div>
       </section>
 
-      {loading ? (
-        <div className="text-center py-12">Chargement des concours...</div>
-      ) : currentConcours ? (
-        <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Dates */}
-          <div className="mb-12">
+      {/* Form Modal */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-background rounded-xl p-8 w-full max-w-2xl">
+            <h2 className="text-2xl font-bold mb-6">Ajouter un nouveau concours</h2>
+            <form onSubmit={handleAddConcours} className="space-y-4">
+              <input
+                type="text"
+                placeholder="Nom du concours"
+                className="w-full border px-4 py-2 rounded-lg"
+                value={newConcours.name}
+                onChange={(e) => setNewConcours({ ...newConcours, name: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Type"
+                className="w-full border px-4 py-2 rounded-lg"
+                value={newConcours.type}
+                onChange={(e) => setNewConcours({ ...newConcours, type: e.target.value })}
+                required
+              />
+              <input
+                type="number"
+                placeholder="Année"
+                className="w-full border px-4 py-2 rounded-lg"
+                value={newConcours.year}
+                onChange={(e) => setNewConcours({ ...newConcours, year: Number(e.target.value) })}
+                required
+              />
+              {/* Add more fields as needed */}
+              <div className="flex justify-end gap-4 mt-4">
+                <button
+                  type="button"
+                  className="px-4 py-2 rounded-lg border"
+                  onClick={() => setShowForm(false)}
+                >
+                  Annuler
+                </button>
+                <button type="submit" className="px-4 py-2 rounded-lg bg-primary text-primary-foreground">
+                  Ajouter
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Active Concours Content */}
+      {activeConcours && (
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center">
-              <Calendar className="w-6 h-6 mr-2 text-primary" />
-              Calendrier {currentConcours.name}
+              <Calendar className="w-6 h-6 mr-2 text-primary" /> Calendrier {activeConcours.name}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                ['Inscription', `${currentConcours.inscription_start} - ${currentConcours.inscrition_end}`],
-                ['Écrits', `${currentConcours.ecrits_start} - ${currentConcours.ecrits_end}`],
-                ['Oraux', `${currentConcours.oraux_start} - ${currentConcours.oraux_end}`],
-                ['Résultats', currentConcours.resilts_date],
-              ].map(([phase, date], index) => (
-                <div key={phase} className="card-feature text-center animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-                  <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Calendar className="w-6 h-6 text-primary-foreground" />
-                  </div>
-                  <h3 className="font-semibold mb-2 capitalize">{phase}</h3>
-                  <p className="text-muted-foreground text-sm">{date}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-6 flex items-center">
-              <TrendingUp className="w-6 h-6 mr-2 text-primary" />
-              Statistiques {currentConcours.name}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="card-feature text-center">
-                <div className="text-3xl font-bold text-primary mb-2">{currentConcours.stats?.candidats || 0}</div>
-                <div className="text-muted-foreground">Candidats inscrits</div>
+                <h3 className="font-semibold">Inscription</h3>
+                <p>{activeConcours.inscription_start} - {activeConcours.inscrition_end}</p>
               </div>
               <div className="card-feature text-center">
-                <div className="text-3xl font-bold text-success mb-2">{currentConcours.stats?.places || 0}</div>
-                <div className="text-muted-foreground">Places disponibles</div>
+                <h3 className="font-semibold">Écrits</h3>
+                <p>{activeConcours.ecrits_start} - {activeConcours.ecrits_end}</p>
               </div>
               <div className="card-feature text-center">
-                <div className="text-3xl font-bold text-warning mb-2">{currentConcours.stats?.taux || 0}</div>
-                <div className="text-muted-foreground">Taux de réussite</div>
+                <h3 className="font-semibold">Oraux</h3>
+                <p>{activeConcours.oraux_start} - {activeConcours.oraux_end}</p>
+              </div>
+              <div className="card-feature text-center">
+                <h3 className="font-semibold">Résultats</h3>
+                <p>{activeConcours.resilts_date}</p>
               </div>
             </div>
           </div>
-
-          {/* Filieres */}
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-6 flex items-center">
-              <Target className="w-6 h-6 mr-2 text-primary" />
-              Filières concernées
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              {currentConcours.filieres.map((f: string) => (
-                <div key={f} className="px-6 py-3 bg-gradient-primary text-primary-foreground rounded-lg font-medium">{f}</div>
-              ))}
-            </div>
-          </div>
-
-          {/* Ecoles */}
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-6 flex items-center">
-              <School className="w-6 h-6 mr-2 text-primary" />
-              Écoles accessibles
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentConcours.ecoles.map((ecole: any, idx: number) => (
-                <div key={idx} className="card-feature animate-slide-up" style={{ animationDelay: `${idx * 100}ms` }}>
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-semibold text-lg flex-1">{ecole.name}</h3>
-                    <div className="text-primary font-bold">{ecole.places}</div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground text-sm">{ecole.filiere}</span>
-                    <span className="text-xs bg-muted px-2 py-1 rounded-md">{ecole.places} places</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Methodology */}
-          <section className="content-section bg-gradient-subtle">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-              {methodologies.map((method, index) => (
-                <div key={index} className="card-feature animate-fade-in" style={{ animationDelay: `${index * 200}ms` }}>
-                  <div className="flex items-center mb-6">
-                    <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mr-4">
-                      <method.icon className="w-6 h-6 text-primary-foreground" />
-                    </div>
-                    <h3 className="text-xl font-semibold">{method.title}</h3>
-                  </div>
-                  <p className="text-muted-foreground mb-6 leading-relaxed">{method.description}</p>
-                  <ul className="space-y-3">
-                    {method.items.map((item, i) => (
-                      <li key={i} className="flex items-start">
-                        <div className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                        <span className="text-muted-foreground">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-6">
-                    <button className="btn-secondary">En savoir plus</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
         </section>
-      ) : (
-        <div className="text-center py-12">Aucun concours disponible.</div>
       )}
     </div>
   );
