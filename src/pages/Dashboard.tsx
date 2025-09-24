@@ -17,6 +17,9 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { ArticleModal } from '@/components/ArticleModal';
+import { DocumentModal } from '@/components/DocumentModal';
+import { SearchModal } from '@/components/SearchModal';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -24,6 +27,20 @@ const Dashboard = () => {
   const [documents, setDocuments] = useState<Tables<'documents'>[]>([]);
   const [concours, setConcours] = useState<Tables<'concours'>[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Modal states
+  const [articleModal, setArticleModal] = useState<{
+    isOpen: boolean;
+    article?: Tables<'articles'> | null;
+  }>({ isOpen: false, article: null });
+  
+  const [documentModal, setDocumentModal] = useState<{
+    isOpen: boolean;
+    document?: Tables<'documents'> | null;
+  }>({ isOpen: false, document: null });
+  
+  const [searchModal, setSearchModal] = useState(false);
+  
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
 
@@ -54,6 +71,77 @@ const Dashboard = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handlers
+  const handleCreateArticle = () => {
+    setArticleModal({ isOpen: true, article: null });
+  };
+
+  const handleEditArticle = (article: Tables<'articles'>) => {
+    setArticleModal({ isOpen: true, article });
+  };
+
+  const handleDeleteArticle = async (id: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('articles')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: "Article supprimé avec succès",
+      });
+      
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting article:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer l'article",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCreateDocument = () => {
+    setDocumentModal({ isOpen: true, document: null });
+  };
+
+  const handleEditDocument = (document: Tables<'documents'>) => {
+    setDocumentModal({ isOpen: true, document });
+  };
+
+  const handleDeleteDocument = async (id: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce document ?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('documents')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: "Document supprimé avec succès",
+      });
+      
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      toast({
+        title: "Erreur", 
+        description: "Impossible de supprimer le document",
+        variant: "destructive",
+      });
     }
   };
 
@@ -100,11 +188,17 @@ const Dashboard = () => {
                 </p>
               </div>
               <div className="flex items-center space-x-4">
-                <button className="btn-secondary">
+                <button 
+                  onClick={() => setSearchModal(true)}
+                  className="btn-secondary"
+                >
                   <Search className="w-4 h-4 mr-2" />
                   Rechercher
                 </button>
-                <button className="btn-hero">
+                <button 
+                  onClick={handleCreateArticle}
+                  className="btn-hero"
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Nouveau
                 </button>
@@ -217,7 +311,10 @@ const Dashboard = () => {
                           </div>
                         </div>
                         <div className="flex items-center space-x-2 ml-4">
-                          <button className="p-1 hover:bg-background rounded">
+                          <button 
+                            onClick={() => handleEditArticle(article)}
+                            className="p-1 hover:bg-background rounded"
+                          >
                             <Edit3 className="w-4 h-4" />
                           </button>
                         </div>
@@ -257,10 +354,16 @@ const Dashboard = () => {
                           </div>
                         </div>
                         <div className="flex items-center space-x-2 ml-4">
-                          <button className="p-1 hover:bg-background rounded">
+                          <button 
+                            onClick={() => handleEditDocument(doc)}
+                            className="p-1 hover:bg-background rounded"
+                          >
                             <Edit3 className="w-4 h-4" />
                           </button>
-                          <button className="p-1 hover:bg-background rounded text-destructive">
+                          <button 
+                            onClick={() => handleDeleteDocument(doc.id)}
+                            className="p-1 hover:bg-background rounded text-destructive"
+                          >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -280,7 +383,10 @@ const Dashboard = () => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">Gestion des Actualités</h2>
-              <button className="btn-hero">
+              <button 
+                onClick={handleCreateArticle}
+                className="btn-hero"
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Nouvel article
               </button>
@@ -312,10 +418,16 @@ const Dashboard = () => {
                           </td>
                           <td className="py-3 px-4">
                             <div className="flex items-center space-x-2">
-                              <button className="p-1 hover:bg-muted rounded">
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <button className="p-1 hover:bg-muted rounded text-destructive">
+                               <button 
+                                 onClick={() => handleEditArticle(article)}
+                                 className="p-1 hover:bg-muted rounded"
+                               >
+                                 <Edit3 className="w-4 h-4" />
+                               </button>
+                               <button 
+                                 onClick={() => handleDeleteArticle(article.id)}
+                                 className="p-1 hover:bg-muted rounded text-destructive"
+                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
@@ -341,7 +453,10 @@ const Dashboard = () => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">Gestion de la Bibliothèque</h2>
-              <button className="btn-hero">
+              <button 
+                onClick={handleCreateDocument}
+                className="btn-hero"
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Nouveau document
               </button>
@@ -385,14 +500,20 @@ const Dashboard = () => {
                           </td>
                           <td className="py-3 px-4">{doc.downloads}</td>
                           <td className="py-3 px-4">
-                            <div className="flex items-center space-x-2">
-                              <button className="p-1 hover:bg-muted rounded">
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <button className="p-1 hover:bg-muted rounded text-destructive">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
+                             <div className="flex items-center space-x-2">
+                               <button 
+                                 onClick={() => handleEditDocument(doc)}
+                                 className="p-1 hover:bg-muted rounded"
+                               >
+                                 <Edit3 className="w-4 h-4" />
+                               </button>
+                               <button 
+                                 onClick={() => handleDeleteDocument(doc.id)}
+                                 className="p-1 hover:bg-muted rounded text-destructive"
+                               >
+                                 <Trash2 className="w-4 h-4" />
+                               </button>
+                             </div>
                           </td>
                         </tr>
                       ))
@@ -473,6 +594,26 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      <ArticleModal
+        isOpen={articleModal.isOpen}
+        onClose={() => setArticleModal({ isOpen: false, article: null })}
+        article={articleModal.article}
+        onSuccess={fetchData}
+      />
+      
+      <DocumentModal
+        isOpen={documentModal.isOpen}
+        onClose={() => setDocumentModal({ isOpen: false, document: null })}
+        document={documentModal.document}
+        onSuccess={fetchData}
+      />
+      
+      <SearchModal
+        isOpen={searchModal}
+        onClose={() => setSearchModal(false)}
+      />
     </div>
   );
 };
