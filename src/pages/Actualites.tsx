@@ -16,6 +16,14 @@ const Actualites = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       setLoading(true);
+  useEffect(() => {
+  const fetchArticles = async () => {
+    const { data, error } = await supabase.from("articles").select("*");
+    console.log("Fetched articles:", data, error);
+  };
+  fetchArticles();
+}, []);
+
 
       // 👇 change "actualites" to your real table name in Supabase
       const { data, error } = await supabase
