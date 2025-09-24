@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { Tables } from '@/integrations/supabase/types';
-import { Loader } from 'lucide-react';  // icons for UI
-import { Calendar, User, Search, ChevronDown } from 'lucide-react';
+import { Search, Calendar, User, ChevronDown } from 'lucide-react';
 
 const Actualites = () => {
   const [articles, setArticles] = useState<any[]>([]);
@@ -12,34 +10,34 @@ const Actualites = () => {
 
   const filters = ['Tous', 'Concours', 'Méthodologie', 'Classements', 'Orientation'];
 
-  // ✅ Fetch from Supabase
-  useEffect(() => {
-    const fetchArticles = async () => {
-      setLoading(true);
-
-      // 👇 change "actualites" to your real table name in Supabase
+  // Fetch articles from Supabase
+  const fetchArticles = async () => {
+    setLoading(true);
+    try {
       const { data, error } = await supabase
-        .from('articles') 
+        .from('articles') // change this to your table name
         .select('*')
         .order('date', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching articles:', error);
-      } else {
-        setArticles(data || []);
-      }
+      if (error) throw error;
+      setArticles(data || []);
+    } catch (error) {
+      console.error('Error fetching articles:', error);
+      setArticles([]);
+    }
+    setLoading(false);
+  };
 
-      setLoading(false);
-    };
-
+  useEffect(() => {
     fetchArticles();
   }, []);
 
+  // Filtered articles based on search and category
   const filteredArticles = articles.filter(article => {
     const matchesFilter = selectedFilter === 'Tous' || article.category === selectedFilter;
     const matchesSearch =
-      article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      article.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
+      (article.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (article.excerpt?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
@@ -118,23 +116,23 @@ const Actualites = () => {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between text-sm">
                       <span className="bg-primary/10 text-primary px-2 py-1 rounded-md font-medium">
-                        {article.category}
+                        {article.category || 'Sans catégorie'}
                       </span>
-                      <span className="text-muted-foreground">{article.readTime}</span>
+                      <span className="text-muted-foreground">{article.readTime || ''}</span>
                     </div>
                     
                     <h3 className="text-xl font-semibold group-hover:text-primary transition-colors duration-200 line-clamp-2">
-                      {article.title}
+                      {article.title || 'Sans titre'}
                     </h3>
                     
                     <p className="text-muted-foreground leading-relaxed line-clamp-3">
-                      {article.excerpt}
+                      {article.excerpt || ''}
                     </p>
                     
                     <div className="flex items-center justify-between pt-4 border-t border-border">
                       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                         <User className="w-4 h-4" />
-                        <span>{article.author}</span>
+                        <span>{article.author || 'Anonyme'}</span>
                       </div>
                       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                         <Calendar className="w-4 h-4" />
