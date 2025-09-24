@@ -19,7 +19,7 @@ const Actualites = () => {
 
       // 👇 change "actualites" to your real table name in Supabase
       const { data, error } = await supabase
-        .from('articles') 
+        .from('documents') 
         .select('*')
         .order('date', { ascending: false });
 
