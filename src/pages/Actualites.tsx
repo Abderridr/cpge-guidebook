@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Calendar, User, ChevronDown } from 'lucide-react';
+import { Calendar, User, Search, ChevronDown } from 'lucide-react';
 
 const Actualites = () => {
   const [articles, setArticles] = useState<any[]>([]);
@@ -10,34 +10,32 @@ const Actualites = () => {
 
   const filters = ['Tous', 'Concours', 'Méthodologie', 'Classements', 'Orientation'];
 
-  // Fetch articles from Supabase
-  const fetchArticles = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('articles') // change this to your table name
-        .select('*')
-        .order('date', { ascending: false });
-
-      if (error) throw error;
-      setArticles(data || []);
-    } catch (error) {
-      console.error('Error fetching articles:', error);
-      setArticles([]);
-    }
-    setLoading(false);
-  };
-
   useEffect(() => {
+    const fetchArticles = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('articles') // make sure table name is correct
+        .select('*')
+        .order('published_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching articles:', error);
+      } else {
+        setArticles(data || []);
+        console.log('Fetched articles:', data); // Debug
+      }
+
+      setLoading(false);
+    };
+
     fetchArticles();
   }, []);
 
-  // Filtered articles based on search and category
   const filteredArticles = articles.filter(article => {
     const matchesFilter = selectedFilter === 'Tous' || article.category === selectedFilter;
     const matchesSearch =
-      (article.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (article.excerpt?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+      article.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      article.excerpt?.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
@@ -56,8 +54,6 @@ const Actualites = () => {
       {/* Filters and Search */}
       <section className="py-8 bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
-          
-          {/* Search */}
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
             <input
@@ -69,7 +65,6 @@ const Actualites = () => {
             />
           </div>
 
-          {/* Filters */}
           <div className="flex flex-wrap gap-2">
             {filters.map((filter) => (
               <button
@@ -107,53 +102,38 @@ const Actualites = () => {
                 >
                   <div className="aspect-video bg-muted rounded-lg mb-4 overflow-hidden">
                     <img
-                      src={article.image || '/placeholder.png'}
+                      src={article.image_url || '/placeholder.png'}
                       alt={article.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
-                  
                   <div className="space-y-3">
                     <div className="flex items-center justify-between text-sm">
                       <span className="bg-primary/10 text-primary px-2 py-1 rounded-md font-medium">
-                        {article.category || 'Sans catégorie'}
+                        {article.category}
                       </span>
-                      <span className="text-muted-foreground">{article.readTime || ''}</span>
                     </div>
-                    
                     <h3 className="text-xl font-semibold group-hover:text-primary transition-colors duration-200 line-clamp-2">
-                      {article.title || 'Sans titre'}
+                      {article.title}
                     </h3>
-                    
                     <p className="text-muted-foreground leading-relaxed line-clamp-3">
-                      {article.excerpt || ''}
+                      {article.excerpt}
                     </p>
-                    
                     <div className="flex items-center justify-between pt-4 border-t border-border">
                       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                         <User className="w-4 h-4" />
-                        <span>{article.author || 'Anonyme'}</span>
+                        <span>{article.author}</span>
                       </div>
                       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                         <Calendar className="w-4 h-4" />
                         <span>
-                          {article.date ? new Date(article.date).toLocaleDateString('fr-FR') : ''}
+                          {article.published_at ? new Date(article.published_at).toLocaleDateString('fr-FR') : ''}
                         </span>
                       </div>
                     </div>
                   </div>
                 </article>
               ))}
-            </div>
-          )}
-
-          {/* Load More */}
-          {filteredArticles.length > 0 && (
-            <div className="text-center mt-12">
-              <button className="btn-secondary group">
-                Charger plus d'articles
-                <ChevronDown className="w-5 h-5 ml-2 group-hover:translate-y-1 transition-transform duration-200" />
-              </button>
             </div>
           )}
         </div>
