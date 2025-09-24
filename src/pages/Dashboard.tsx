@@ -13,15 +13,16 @@ import {
   BookOpen,
   Award
 } from 'lucide-react';
-import { supabase, Article, Document, Concour } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
+import type { Tables } from '@/integrations/supabase/types';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [concours, setConcours] = useState<Concour[]>([]);
+  const [articles, setArticles] = useState<Tables<'articles'>[]>([]);
+  const [documents, setDocuments] = useState<Tables<'documents'>[]>([]);
+  const [concours, setConcours] = useState<Tables<'concours'>[]>([]);
   const [loading, setLoading] = useState(true);
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
@@ -448,7 +449,7 @@ const Dashboard = () => {
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium">Stats</span>
                           <div className="text-xs text-muted-foreground">
-                            {concour.stats.candidats} candidats • {concour.stats.places} places • {concour.stats.taux_reussite}% réussite
+                            {(concour.stats as any)?.candidats || 0} candidats • {(concour.stats as any)?.places || 0} places • {(concour.stats as any)?.taux_reussite || 0}% réussite
                           </div>
                         </div>
                       </div>

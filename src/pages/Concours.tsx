@@ -152,15 +152,15 @@ const Concours = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="card-feature text-center">
-                <div className="text-3xl font-bold text-primary mb-2">{currentConcours.stats.candidats}</div>
+                <div className="text-3xl font-bold text-primary mb-2">{(currentConcours.stats as any)?.candidats || 0}</div>
                 <div className="text-muted-foreground">Candidats inscrits</div>
               </div>
               <div className="card-feature text-center">
-                <div className="text-3xl font-bold text-success mb-2">{currentConcours.stats.places}</div>
+                <div className="text-3xl font-bold text-success mb-2">{(currentConcours.stats as any)?.places || 0}</div>
                 <div className="text-muted-foreground">Places disponibles</div>
               </div>
               <div className="card-feature text-center">
-                <div className="text-3xl font-bold text-warning mb-2">{currentConcours.stats.taux}</div>
+                <div className="text-3xl font-bold text-warning mb-2">{(currentConcours.stats as any)?.taux_reussite || 0}</div>
                 <div className="text-muted-foreground">Taux de réussite</div>
               </div>
             </div>
