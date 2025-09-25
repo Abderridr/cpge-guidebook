@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArticleModal } from '@/components/ArticleModal';
 import { DocumentModal } from '@/components/DocumentModal';
 import { SearchModal } from '@/components/SearchModal';
+import { ConcoursModal } from '@/components/ConcoursModal';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -40,6 +41,11 @@ const Dashboard = () => {
   }>({ isOpen: false, document: null });
   
   const [searchModal, setSearchModal] = useState(false);
+  
+  const [concoursModal, setConcoursModal] = useState<{
+    isOpen: boolean;
+    concours?: Tables<'concours'> | null;
+  }>({ isOpen: false, concours: null });
   
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
@@ -140,6 +146,42 @@ const Dashboard = () => {
       toast({
         title: "Erreur", 
         description: "Impossible de supprimer le document",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Concours handlers
+  const handleCreateConcours = () => {
+    setConcoursModal({ isOpen: true, concours: null });
+  };
+
+  const handleEditConcours = (concours: Tables<'concours'>) => {
+    setConcoursModal({ isOpen: true, concours });
+  };
+
+  const handleDeleteConcours = async (id: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce concours ?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('concours')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: "Concours supprimé avec succès",
+      });
+      
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting concours:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer le concours",
         variant: "destructive",
       });
     }
@@ -536,7 +578,10 @@ const Dashboard = () => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">Gestion des Concours</h2>
-              <button className="btn-hero">
+              <button 
+                onClick={handleCreateConcours}
+                className="btn-hero"
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Nouveau concours
               </button>
@@ -576,10 +621,16 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div className="mt-4 flex justify-end space-x-2">
-                      <button className="p-1 hover:bg-muted rounded">
+                      <button 
+                        onClick={() => handleEditConcours(concour)}
+                        className="p-1 hover:bg-muted rounded"
+                      >
                         <Edit3 className="w-4 h-4" />
                       </button>
-                      <button className="p-1 hover:bg-muted rounded text-destructive">
+                      <button 
+                        onClick={() => handleDeleteConcours(concour.id)}
+                        className="p-1 hover:bg-muted rounded text-destructive"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -613,6 +664,13 @@ const Dashboard = () => {
       <SearchModal
         isOpen={searchModal}
         onClose={() => setSearchModal(false)}
+      />
+      
+      <ConcoursModal
+        isOpen={concoursModal.isOpen}
+        onClose={() => setConcoursModal({ isOpen: false, concours: null })}
+        concours={concoursModal.concours}
+        onSuccess={fetchData}
       />
     </div>
   );

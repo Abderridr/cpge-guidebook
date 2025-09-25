@@ -15,6 +15,7 @@ import Concours from "./pages/Concours";
 import OffresKorrid from "./pages/OffresKorrid";
 import APropos from "./pages/APropos";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -41,6 +42,7 @@ const App = () => (
                   <Route path="/offres-korrid" element={<OffresKorrid />} />
                   <Route path="/a-propos" element={<APropos />} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
                   <Route path="/dashboard" element={
                     <ProtectedRoute adminOnly>
                       <Dashboard />
