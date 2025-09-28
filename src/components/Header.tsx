@@ -13,11 +13,11 @@ const Header = () => {
 
   const navigation = [
     { name: 'Accueil', href: '/' },
-    { name: 'Actualités', href: '/actualites' },
-    { name: 'Présentation', href: '/presentation' },
+    { name: 'Écoles', href: '/ecoles' },
     { name: 'Bibliothèque', href: '/bibliotheque' },
     { name: 'Concours', href: '/concours' },
     { name: 'Offres Korrid', href: '/offres-korrid' },
+    { name: 'Actualités', href: '/actualites' },
     { name: 'À propos', href: '/a-propos' },
   ];
 

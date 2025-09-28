@@ -17,6 +17,8 @@ import APropos from "./pages/APropos";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import Ecoles from "./pages/Ecoles";
+import FiliereDetail from "./pages/FiliereDetail";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -40,6 +42,8 @@ const App = () => (
                   <Route path="/bibliotheque" element={<Bibliotheque />} />
                   <Route path="/concours" element={<Concours />} />
                   <Route path="/offres-korrid" element={<OffresKorrid />} />
+                  <Route path="/ecoles" element={<Ecoles />} />
+                  <Route path="/ecoles/filieres/:filiere" element={<FiliereDetail />} />
                   <Route path="/a-propos" element={<APropos />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
